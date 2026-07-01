@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+
+/* ============================================================
+   Paper Compute — warm paper / ink / brick-red editorial
+   (matches the "Real-Time Feedback Loops" brand deck)
+   ============================================================ */
+:root {
+  --paper:    #f4efe5;
+  --paper-2:  #ece4d6;   /* card / inset */
+  --ink:      #1c1813;
+  --ink-soft: #46402f;
+  --muted:    #8d8676;
+  --line:     #d8d0c0;
+  --red:      #bf4231;
+  --red-deep: #9f3526;
+
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-body: 'Archivo', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+
+  --slidev-theme-primary: var(--red);
+}
+
+/* ---- base (light paper) ---- */
+.slidev-layout {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  padding: 3.4rem 4rem;
+}
+
+/* ---- typography ---- */
+.slidev-layout h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 2.6rem;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+  max-width: 22ch;
+}
+/* "Topic / subtitle" — make the part after a slash red via <span class=hl> */
+.slidev-layout h1 .hl, .hl { color: var(--red); }
+
+.slidev-layout h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin-bottom: .5rem;
+}
+.slidev-layout h3 { font-family: var(--font-mono); font-weight:700; font-size: .8rem; text-transform: uppercase; letter-spacing:.12em; color: var(--red); }
+
+.slidev-layout p, .slidev-layout li { font-size: 1.05rem; line-height: 1.5; color: var(--ink-soft); }
+.slidev-layout strong { color: var(--ink); font-weight: 700; }
+.slidev-layout em { color: var(--red); font-style: italic; }
+.slidev-layout a { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---- eyebrow / kicker ---- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--muted);
+}
+.eyebrow.red { color: var(--red); }
+
+/* ---- lists ---- */
+.slidev-layout ul { list-style: none; padding-left: 0; }
+.slidev-layout ul > li { position: relative; padding-left: 1.4rem; margin: .5rem 0; }
+.slidev-layout ul > li::before {
+  content: '/';
+  position: absolute; left: 0; top: 0;
+  font-family: var(--font-mono); font-weight: 700;
+  color: var(--red);
+}
+
+/* ---- code ---- */
+.slidev-layout :not(pre) > code {
+  font-family: var(--font-mono);
+  background: var(--paper-2);
+  color: var(--red-deep);
+  border: 1px solid var(--line);
+  padding: .05em .35em; border-radius: 2px; font-size: .9em;
+}
+.slidev-layout pre {
+  border: 1px solid var(--ink) !important;
+  border-radius: 3px;
+  box-shadow: 5px 5px 0 var(--ink);
+  background: #1c1813 !important;
+  padding: 1rem 1.1rem !important;
+}
+.slidev-layout .slidev-code { font-family: var(--font-mono) !important; font-size: .8rem; color: #ece4d6; }
+
+/* ---- tables ---- */
+.slidev-layout table { border-collapse: collapse; font-size: .92rem; }
+.slidev-layout th {
+  font-family: var(--font-mono); font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  text-align: left; color: var(--paper); background: var(--ink); padding: .45rem .85rem;
+}
+.slidev-layout td { border: 1px solid var(--line); padding: .45rem .85rem; color: var(--ink-soft); }
+.slidev-layout tr:nth-child(even) td { background: var(--paper-2); }
+
+/* ---- blockquote ---- */
+.slidev-layout blockquote {
+  border: none; border-left: 3px solid var(--red);
+  background: transparent; padding: .2rem 0 .2rem 1rem;
+  color: var(--ink); font-style: normal; font-weight: 500;
+}
+
+/* ============================================================
+   Components
+   ============================================================ */
+.tag {
+  font-family: var(--font-mono); font-size: .68rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  color: var(--ink); border: 1.5px solid var(--ink);
+  padding: .3rem .55rem; display: inline-block; border-radius: 2px;
+}
+.tag.fill { background: var(--ink); color: var(--paper); }
+.tag.red  { color: var(--red); border-color: var(--red); }
+
+.card {
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  padding: 1.1rem 1.3rem;
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.card.soft { border-color: var(--line); box-shadow: 5px 5px 0 var(--line); background: var(--paper-2); }
+.card.red  { border-color: var(--red); box-shadow: 5px 5px 0 var(--red); }
+
+/* big lead headline for statement slides */
+.slidev-layout h1.lead { font-size: 3.5rem; line-height: .98; max-width: 18ch; }
+.slidev-layout h1.lead.sm { font-size: 2.9rem; }
+
+/* big display number / stat */
+.stat { font-family: var(--font-mono); font-weight: 700; color: var(--red); }
+.stat.xl { font-size: 2rem; }
+.dim  { color: var(--muted); }
+.ink  { color: var(--ink); }
+
+/* keyboard / Game Boy button reference (tasteful, not pixel) */
+.kbd {
+  display: inline-grid; place-items: center;
+  width: 1.7rem; height: 1.7rem; border-radius: 50%;
+  background: var(--red); color: var(--paper);
+  font-family: var(--font-mono); font-weight: 700; font-size: .8rem;
+  vertical-align: middle;
+}
+
+/* progress dots */
+.steps { font-family: var(--font-mono); letter-spacing: .25em; color: var(--red); font-size: .9rem; }
+
+/* footer controls tint */
+.slidev-layout { --slidev-controls-foreground: var(--ink); }
+
+/* Fix: Slidev's "Goto" (press g) autocomplete list stays visible on the right
+   even when the dialog is closed. Only show it while the input is focused. */
+#slidev-goto-dialog:not(:focus-within) .autocomplete-list { display: none !important; }
+
+/* ---- DARK section override applied by layout ---- */
+.is-dark.slidev-layout, .slidev-layout.is-dark { background: var(--ink); color: var(--paper); }
+.is-dark .eyebrow { color: #c9b8a0; }
+.is-dark .eyebrow.red { color: var(--red); }

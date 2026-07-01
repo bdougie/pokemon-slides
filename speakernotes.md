@@ -22,7 +22,9 @@ The disclaimer: I have **nothing** to sell you. Everything here is open source. 
 
 ## How this goes
 
-This is a speed run, not a workshop. No tidy step 1 → 2 → 3. I'm sharing how I actually learned this. There *is* a blog post with the numbered steps — I'll share it later. Also: this got me banned from Claude. Use at your own discretion.
+This is a speed run, not a workshop. No tidy step 1 → 2 → 3. I'm sharing how I actually learned this. There *is* a blog post with the numbered steps and the full setup — I'll share it later. Also: this got me banned from Claude. Use at your own discretion.
+
+> Blog: **What I learned running 10 Pokémon bots in 36 seconds** — https://briandouglas.me/posts/2026/03/10/what-i-learned-running-10-pokemon-bots-in-36-seconds/ (full setup, screenshots, and the numbered logs). Code: `papercomputeco/pokemon`.
 
 ---
 
@@ -66,7 +68,7 @@ Then it clicked: use Claude Code (or Codex) to drive PyBoy. It says "code," but 
 
 ### The setup
 
-Each turn: tick PyBoy, read memory at known addresses (battle type, HP, moves, map, coords, badges), decide, send buttons. `paperd` proxies the LLM calls and records every session.
+Each turn: tick PyBoy, read memory, decide, send buttons. `paperd` proxies the LLM calls and records every session. Concretely, the memory reader (`read_overworld_state()`) pulls `map_id`, `x`, `y`, `badges`, and `party_count`; a fitness pass also tracks `turn_count`, `battles_won`, `maps_visited`, and `stuck_count`. Reaching Oak's Lab = **map 40**. *(See the Appendix for the full mechanics.)*
 
 ```
 stereOS VM (/workspace)
@@ -126,14 +128,15 @@ My one rule: it can't use the internet to learn how to play. Everything self-lea
 
 ### 🎬 Demo 1 — Pokémon agent, live (~5 min)
 
-- Boot the pokemon-kafka agent headless on Pokémon Red
-- Attach, watch it read memory → decide → press buttons; narrate a few turns
+The point to land: **there's no separate Python runner — Claude Code *is* the harness.** It reads memory, decides, and presses buttons directly. "The beauty of training an agent is the harness."
+
+- Drive the pokemon-kafka agent straight from Claude Code (no `uv`, no external script)
+- Watch it read memory → decide → press buttons; narrate a few turns
 - Show a screenshot from `frames/` mid-run
 
 ```bash
-mb up && mb attach          # stereOS VM
-# or local:
-uv run scripts/agent.py rom/pokemon_red.gb --strategy heuristic
+# in Claude Code, from the pokemon-kafka repo:
+> speedrun Pokémon Red headless — read memory, decide, press buttons, to the first Pokémon
 ```
 
 Have a pre-warmed run ready in case boot is slow.
@@ -165,7 +168,9 @@ A `memory/` folder of human-readable observations, written by the agent in Markd
 
 ### observer_state.json — the physics of the world
 
-The agent learned the physics of the world. The discovery: **doors have a ~7-second cooldown** — you can't spam back and forth through doors/caves to farm. Found it reading `observer.md` and Socratic-chatting with the agent. **Remember this number — it comes back in the autotune section.**
+The agent learned the physics of the world. The discovery: **doors have a cooldown** — you can't spam back and forth through doors/caves to farm. Found it reading `observer.md` and Socratic-chatting with the agent. **Remember this — it comes back in the autotune section as the `door_cooldown` knob.**
+
+*Accuracy note (from the blog):* in code the door cooldown is measured in **frames/turns, default 8** ("eight frames seems like enough" — Log 5), and the fix also needed **oscillation detection** because the stuck counter reset when the agent bounced between two tiles (Log 6). On stage I round it to the "7-second door" for story flow — just don't let the 7 vs 8 trip you up if someone asks.
 
 ```json
 {
@@ -181,6 +186,8 @@ The agent learned the physics of the world. The discovery: **doors have a ~7-sec
 ### 3 seconds to Pokémon
 
 A vicious self-healing loop got it to **3 seconds to Pokémon**. Game start → spam `A` (name your character, name your Pokémon) → run to Oak. But you *don't* hit `A` to pick your starter — you hit `B`, because Oak asks yes/no and `A` loops you back. Tiny nuance, huge difference. The observer caught the last trap.
+
+*Accuracy note (from the blog):* the measured figures are ~**5.4s** for a single variant to reach Pokémon selection, **11.1s** for all 10 in parallel, headline "**10 variants in 36s**." The "3 seconds" on stage is the punchy best-case story number — fine to say, just know the logged numbers if pressed.
 
 ```diff
 - spam A to pick your starter
@@ -368,7 +375,9 @@ You'll ask: why embed a skill in the model instead of letting the harness invoke
 
 **Try → Check → Reward (pass=1 / fail=0) → Nudge → loop.** That arrow is the entire training process.
 
-(Timing note: the same week I finished Pokémon, Karpathy's auto-research repo dropped. Qwen 3.6 ships this in the open weights — Alibaba has self-healing in a model today.)
+(Timing note: the same week I finished Pokémon, Karpathy's auto-research repo dropped. Qwen 3.6 ships this in the open weights — Alibaba has self-healing in a model today. Lineage also traces to DeepMind's **AlphaEvolve** — source code as a genome, an LLM proposing mutations against a fitness metric.)
+
+*Note to self:* the visible `uv run python -m autotune…` commands are the **evolution harness** from the blog (`run_10_agents.py` / `evolve.py` lineage) — a fitness loop where the *numbers* decide. That's distinct from the **live Pokémon demo**, which is driven straight from Claude Code. Both are "the harness"; keep the two framings straight if asked.
 
 ### Try
 
@@ -485,3 +494,25 @@ Trace the data, reinforce with the learnings. Find me in the Expo Hall.
 Open source: **tapes.dev · stereOS · sweeper · pokemon-kafka · autotune**
 
 **FAQ — does tapes.dev work for Codex?** Today: Claude Code, Conductor, Ollama. Not Codex yet — happy to make it work if someone needs it.
+
+---
+
+## Appendix — how the game is actually played (from the blog)
+
+Grounding detail from *[What I learned running 10 Pokémon bots in 36 seconds](https://briandouglas.me/posts/2026/03/10/what-i-learned-running-10-pokemon-bots-in-36-seconds/)*. Use this when someone at the booth wants the real mechanics.
+
+**Reading state.** `read_overworld_state()` returns `map_id`, `x`, `y`, `badges`, `party_count`. A fitness pass also tracks `turn_count`, `battles_won`, `maps_visited` (a set), and `stuck_count` (incremented on events containing `"STUCK"`). One early bug: text-box detection keyed off a background *tile* address instead of a game-state flag.
+
+**Pressing buttons.** Built on PyBoy. The gotcha (Log 5): `pyboy.button_press()` doesn't fire reliably in **headless** mode — a real time-sink. Log 6 added **oscillation detection** because the stuck counter kept resetting when the agent bounced between two tiles.
+
+**The loop.** `choose_action()` picks the next input; a waypoint navigator skips a waypoint when stuck. Debugging was manual: *watch it run → notice something wrong → form a hypothesis → write a fix → run again.*
+
+**10 in parallel.** `run_10_agents.py` launches 10 parameter variants at once via subprocess isolation; each variant's genome is passed in through the `EVOLVE_PARAMS` env var. Headless runs at ~100× real-time — **10 runs to Pokémon selection in 11.1s**, individual variants ~5.4s, headline "10 variants in 36s."
+
+**The genome (EVOLVE_PARAMS).** `stuck_threshold` (default 8), `door_cooldown` (default 8), `waypoint_skip_distance` (3), `axis_preference_map_0` ("y"), and more. Variants raced: `baseline`, `low_stuck`(4), `high_stuck`(12), `short_door`(4), `long_door`(12). **`short_door` won** (score 40375, 9 stuck, 5.4s); `long_door`/conservative did worst (40340, 16 stuck) — walking *away* from a door faster beat lingering.
+
+**Fitness.** `score()` = `final_map_id×1000 + badges×5000 + party_size×500 + battles_won×10 − stuck_count×5 − turns×0.1`. Weighted toward map progress, penalizes getting stuck, mildly prefers fewer turns. Warning that maps to Chapter 09's *reward validity*: reward `maps_visited` naively and you incentivize teleport/back-and-forth exploits.
+
+**Lineage.** Inspired by DeepMind's **AlphaEvolve** — treat source code as a genome, LLM proposes mutations against a fitness metric. (On stage I also tie this to Karpathy's auto-research repo and Qwen's open-weights self-healing — same idea, converging from three directions.)
+
+**Blog images (candidates for the `frames/` placeholders in Ch. 02):** "Pokémon Red agent running headless in the terminal" (hero) · "Single agent navigating Pallet Town" · "Multiple agents in a split-screen view" · "Ten agents racing simultaneously."

@@ -30,6 +30,22 @@
   padding: 3.4rem 4rem;
 }
 
+/* Default layout: vertically center content so single-column statement
+   slides don't strand a half-empty bottom. (section/demo already center.) */
+.slidev-layout.default {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Statement slides with no image/columns: center the block so the title
+   fills the frame instead of hugging the left with dead space on the right.
+   Add `class: center` in a slide's frontmatter to opt in. */
+.slidev-layout.center { align-items: center; text-align: center; }
+.slidev-layout.center h1 { max-width: 24ch; }
+.slidev-layout.center p { max-width: 46ch; }
+.slidev-layout.center .steps { width: 100%; }
+
 /* ---- typography ---- */
 .slidev-layout h1 {
   font-family: var(--font-display);

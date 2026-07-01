@@ -2,6 +2,7 @@
 theme: seriph
 title: Training AI on Your Own Code
 info: Brian "bdougie" Douglas — The Paper Compute Company
+layout: default
 class: text-left
 transition: slide-left
 mdc: true
@@ -75,6 +76,8 @@ GitHub ~5 years, content & community. Now Paper Compute. I have nothing to sell 
 from the last couple months. Come talk to us at the booth.
 -->
 
+---
+class: center
 ---
 
 <div class="eyebrow red">HOW THIS GOES</div>
@@ -177,6 +180,8 @@ PyBoy runs Game Boy emulators in Python. ROMs are flashed games. window=null = h
 watch it. No rendering, no 60fps cap, ~100x real-time. Read memory, decide, press, tick.
 -->
 
+---
+class: center
 ---
 
 <div class="eyebrow red">THE UNLOCK</div>
@@ -299,6 +304,8 @@ no conflict. I just wanted it to reach that point.
 -->
 
 ---
+class: center
+---
 
 # It ran for <span class="hl">hours.</span>
 
@@ -345,6 +352,8 @@ know to do that. That was the whole blocker.
 -->
 
 ---
+class: center
+---
 
 <div class="eyebrow red">THE ONE RULE</div>
 
@@ -363,19 +372,23 @@ layout: demo
 
 # Pokémon agent, live
 
-- Boot the agent headless on Pokémon Red
+- **No Python CLI** — Claude Code *is* the harness driving PyBoy
 - Watch it read memory → decide → press buttons
 - Show a screenshot from `frames/` mid-run
 
 ```bash
-mb up && mb attach          # stereOS VM
-# or local:
-uv run scripts/agent.py rom/pokemon_red.gb --strategy heuristic
+# in Claude Code, from the pokemon-kafka repo:
+> speedrun Pokémon Red headless — read memory,
+  decide, press buttons, to the first Pokémon
 ```
 
+<div class="mt-4 dim">The beauty of training an agent is the <strong class="ink">harness</strong>.</div>
+
 <!--
-DEMO 1 (~5 min): boot the pokemon-kafka agent, attach, narrate a few turns, show a frames/ screenshot.
-Have a pre-warmed run ready in case boot is slow.
+DEMO 1 (~5 min): drive the pokemon-kafka agent straight from Claude Code — no uv, no separate
+runner. Claude Code reads memory, decides, presses buttons. Narrate a few turns, show a frames/
+screenshot. Have a pre-warmed run ready in case boot is slow. The point to land: the harness IS
+the thing doing the training — that's the whole talk in one demo.
 -->
 
 ---
@@ -1146,6 +1159,8 @@ chapter: THE ARC
 # The whole thing <span class="hl">in 5 steps.</span>
 
 ---
+class: center
+---
 
 # 1 / Capture the <span class="hl">sessions</span>
 
@@ -1159,6 +1174,8 @@ Step 1: capture the sessions. Go look at .claude/sessions today. Pull them off y
 tapes.dev if you want them durable.
 -->
 
+---
+class: center
 ---
 
 # 2 / Transfer the <span class="hl">knowledge</span>
@@ -1174,6 +1191,8 @@ learning becomes multiplayer and moves between people and boxes.
 -->
 
 ---
+class: center
+---
 
 # 3 / Harness <span class="hl">freedom</span>
 
@@ -1188,6 +1207,8 @@ whatever's best this week.
 -->
 
 ---
+class: center
+---
 
 # 4 / Model <span class="hl">choice</span>
 
@@ -1201,6 +1222,8 @@ Step 4: model choice. You don't need Opus always — Haiku for bespoke work, a s
 open-weight model. Optionality.
 -->
 
+---
+class: center
 ---
 
 # 5 / <span class="hl">Cost</span>
